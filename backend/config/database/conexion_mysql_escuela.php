@@ -1,30 +1,41 @@
+
 <?php
 
-    //PDO
-    //$pdo = new PDO("mysql:host=localhost;dbname=escuela", "root", "");
+class ConexionBDEscuela {
 
-    class ConexionBDEscuela {
-        private $conexion;
-        private $host = "localhost:3306";
-        private $usuario = "Erick";
-        private $password = "usuarioitsj";
-        private $bd = "BD_Escuela_Web_2026";
-    
+    private $host = "localhost:3306";
+    private $usuario = "Erick";
+    private $password = "usuarioitsj";
+    private $bdname = "BD_Escuela_Web_2026";
 
-    public function __construct(){
-        $this->conexion = mysqli_connect($this->host, $this->usuario, $this->password, $this->bd);
+    private $conexion;
 
-        if(!$this->conexion){
-            die("Error al conectar a la base de datos: " . mysqli_connect_error());
-        } else {
-            //echo "Conexión exitosa a la base de datos desde conexion";
+    public function __construct() {
+
+        try {
+
+            $this->conexion = new PDO(
+                 "mysql:host={$this->host};dbname={$this->bdname};charset=utf8mb4",
+                $this->usuario,
+                $this->password
+            );
+
+            $this->conexion->setAttribute(
+                PDO::ATTR_ERRMODE,
+                PDO::ERRMODE_EXCEPTION
+            );
+
+            //echo "Conexión exitosa a la base de datos.";
+
+        } catch (PDOException $e) {
+
+            die("Error de conexión: " . $e->getMessage());
+
         }
     }
 
-
-    public function getConexion(){
+    public function getConexion() {
         return $this->conexion;
     }
-
-    }
+}
 ?>
