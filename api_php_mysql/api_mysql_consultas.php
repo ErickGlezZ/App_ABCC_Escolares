@@ -1,41 +1,114 @@
+
 <?php
-    include_once('../backend/config/database/conexion_mysql_escuela.php');
 
-    $con = new ConexionBDEscuela();
-    $conexion = $con->getConexion();
+header("Content-Type: application/json; charset=UTF-8");
 
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
+include_once('../backend/config/database/conexion_mysql_escuela.php');
+include_once('../backend/models/alumno_model.php');
 
-        $cadenaJSON = file_get_contents('php://input');
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
-    if(!$cadenaJSON) {
-            echo "No hay cadena JSON.";
+    try {
 
-        }else{
+        // Obtener conexión PDO
+        $con = new ConexionBDEscuela();
+        $conexion = $con->getConexion();
 
-            $sql = "SELECT * FROM Alumnos";
-            $res = mysqli_query($conexion, $sql);
-            $respuesta['alumnos'] = array();
+        // Preparar consulta SQL
+        $sql = "SELECT Num_Control, Nombre, Primer_Ap, Segundo_Ap,
+                       Fecha_Nac, Semestre, Carrera
+                FROM alumnos";
 
-            if($res){
+        $consulta = $conexion->prepare($sql);
 
-                while($fila=mysqli_fetch_assoc($res)){
-                    $alumno = array();
-                    $alumno['nc'] = $fila['Num_Control'];
-                    $alumno['nombre'] = $fila['Nombre'];
-                    $alumno['primerAp'] = $fila['Primer_Ap'];
-                    $alumno['segundoAp'] = $fila['Segundo_Ap'];
-                    $alumno['fechaNac'] = $fila['Fecha_Nac'];
-                    $alumno['semestre'] = $fila['Semestre'];
-                    $alumno['carrera'] = $fila['Carrera'];
+        // Ejecutar consulta
+        $consulta->execute();
 
-                    array_push($respuesta['alumnos'], $alumno);
-                }
-                $respuesta['consulta'] = "Consulta exitosa";
-            }else{
-                $respuesta['consulta'] = "No hay registros";
-            }
-            echo json_encode($respuesta);
+        // Obtener registros
+        $registros = $consulta->fetchAll(PDO::FETCH_ASSOC);
+
+        // Crear arreglo de respuesta
+        $respuesta['alumnos'] = array();
+
+        // Recorrer los registros encontrados
+        foreach ($registros as $fila) {
+
+            // Crear objeto Alumno
+            $alumno = new Alumno(
+                $fila['Num_Control'],
+                $fila['Nombre'],
+                $fila['Primer_Ap'],
+                $fila['Segundo_Ap'],
+                $fila['Fecha_Nac'],
+                $fila['Semestre'],
+                $fila['Carrera']
+            );
+
+            // Obtener información del modelo
+            $datosAlumno = array();
+
+            $datosAlumno['nc'] = $alumno->getNc();
+            $datosAlumno['nombre'] = $alumno->getNombre();
+            $datosAlumno['primerAp'] = $alumno->getPrimerAp();
+            $datosAlumno['segundoAp'] = $alumno->getSegundoAp();
+            $datosAlumno['fechaNac'] = $alumno->getFechaNac();
+            $datosAlumno['semestre'] = $alumno->getSemestre();
+            $datosAlumno['carrera'] = $alumno->getCarrera();
+
+            // Agregar alumno al arreglo
+            array_push($respuesta['alumnos'], $datosAlumno);
         }
+
+        // Comprobar si existen registros
+        if (count($registros) > 0) {
+
+            http_response_code(200);
+
+            $respuesta['consulta'] = "Consulta exitosa";
+            $respuesta['mensaje'] = "Alumnos encontrados correctamente.";
+
+        } else {
+
+            http_response_code(200);
+
+            $respuesta['consulta'] = "Sin registros";
+            $respuesta['mensaje'] = "No hay alumnos registrados.";
+
+        }
+
+        echo json_encode($respuesta);
+
+    } catch (PDOException $e) {
+
+        http_response_code(500);
+
+        echo json_encode([
+            "consulta" => false,
+            "mensaje" => "Error al consultar los alumnos.",
+            "error" => $e->getMessage()
+        ]);
+
+    } catch (Exception $e) {
+
+        http_response_code(500);
+
+        echo json_encode([
+            "consulta" => false,
+            "mensaje" => "Error interno del servidor.",
+            "error" => $e->getMessage()
+        ]);
+
     }
+
+} else {
+
+    http_response_code(405);
+
+    echo json_encode([
+        "consulta" => false,
+        "mensaje" => "Método HTTP no permitido. Utiliza GET."
+    ]);
+
+}
+
 ?>
