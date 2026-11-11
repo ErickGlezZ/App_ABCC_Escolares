@@ -1,31 +1,52 @@
+
 <?php
 
-    class Alumno{
-        
-        private $id_alumno;
-        private $nombre;
-        private $apellido_paterno;
-        private $apellido_materno;
-        private $fecha_nacimiento;
-        private $curp;
-        private $correo_electronico;
-        private $telefono;
-        private $direccion;
-        private $id_grupo;
+class Alumno {
 
-        public function __construct($id_alumno, $nombre, $apellido_paterno, $apellido_materno, $fecha_nacimiento, $curp, $correo_electronico, $telefono, $direccion, $id_grupo) {
-            $this->id_alumno = $id_alumno;
-            $this->nombre = $nombre;
-            $this->apellido_paterno = $apellido_paterno;
-            $this->apellido_materno = $apellido_materno;
-            $this->fecha_nacimiento = $fecha_nacimiento;
-            $this->curp = $curp;
-            $this->correo_electronico = $correo_electronico;
-            $this->telefono = $telefono;
-            $this->direccion = $direccion;
-            $this->id_grupo = $id_grupo;
-        }
+    private $nc;
+    private $nombre;
+    private $primerAp;
+    private $segundoAp;
+    private $fechaNac;
+    private $semestre;
+    private $carrera;
 
-        // Getters and Setters for each property can be added here
+    public function __construct($nc, $nombre, $primerAp, $segundoAp, $fechaNac, $semestre, $carrera) {
+        $this->nc = $nc;
+        $this->nombre = $nombre;
+        $this->primerAp = $primerAp;
+        $this->segundoAp = $segundoAp;
+        $this->fechaNac = $fechaNac;
+        $this->semestre = $semestre;
+        $this->carrera = $carrera;
     }
+
+    public function getNc() {
+        return $this->nc;
+    }
+
+    public function getNombre() {
+        return $this->nombre;
+    }
+
+    public function getPrimerAp() {
+        return $this->primerAp;
+    }
+
+    public function getSegundoAp() {
+        return $this->segundoAp;
+    }
+
+    public function getFechaNac() {
+        return $this->fechaNac;
+    }
+
+    public function getSemestre() {
+        return $this->semestre;
+    }
+
+    public function getCarrera() {
+        return $this->carrera;
+    }
+}
 ?>
